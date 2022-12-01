@@ -11,5 +11,5 @@ fn main() {
     elves.sort();
     elves.reverse();
     println!("p1: {:?}", elves[0]);
-    println!("p1: {:?}", elves.iter().take(3).sum::<usize>());
+    println!("p2: {:?}", elves.iter().take(3).sum::<usize>());
 }
