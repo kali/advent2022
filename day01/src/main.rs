@@ -4,7 +4,7 @@ fn main() {
         .split("\n\n")
         .map(|elf| {
             elf.trim()
-                .split("\n")
+                .split('\n')
                 .map(|s| s.parse::<usize>().unwrap())
                 .sum::<usize>()
         })
