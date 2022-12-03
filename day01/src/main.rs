@@ -3,7 +3,8 @@ fn main() {
         .unwrap()
         .split("\n\n")
         .map(|elf| {
-            elf.trim().split("\n")
+            elf.trim()
+                .split("\n")
                 .map(|s| s.parse::<usize>().unwrap())
                 .sum::<usize>()
         })

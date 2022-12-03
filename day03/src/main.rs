@@ -29,7 +29,8 @@ fn main() {
         .map(|triple| {
             *triple[0]
                 .iter()
-                .find(|c| triple[1].contains(c) && triple[2].contains(c)).unwrap()
+                .find(|c| triple[1].contains(c) && triple[2].contains(c))
+                .unwrap()
         })
         .sum::<usize>();
     dbg!(p2);
