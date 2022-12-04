@@ -19,7 +19,7 @@ fn main() {
     dbg!(p1);
     let p2 = lines
         .iter()
-        .filter(|(s1, e1, s2, e2)| (*s1..=*e1).any(|x| (*s2..=*e2).contains(&x)))
+        .filter(|(s1, e1, s2, e2)| e1 >= s2 && e2 >= s1)
         .count();
     dbg!(p2);
 }
