@@ -9,8 +9,7 @@ fn main() {
                 .sum::<usize>()
         })
         .collect();
-    elves.sort();
-    elves.reverse();
-    println!("p1: {:?}", elves[0]);
+    println!("p1: {:?}", elves.iter().max().unwrap());
+    elves.select_nth_unstable_by_key(3, |x| -(*x as isize));
     println!("p2: {:?}", elves.iter().take(3).sum::<usize>());
 }
