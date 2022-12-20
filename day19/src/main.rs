@@ -40,7 +40,7 @@ impl State {
         if self.potential(steps) < must_best.get() || self.turn == steps + 1 {
             return vec![];
         }
-        let wait = State {
+        let mut wait = State {
             turn: self.turn + 1,
             robots: self.robots.clone(),
             stock: (
@@ -50,6 +50,14 @@ impl State {
                 self.stock.3 + self.robots.3,
             ),
         };
+        // if we can build a geode bot, build it.
+        if self.stock.0 >= bp.geode.0 && self.stock.2 >= bp.geode.1 {
+            wait.stock.0 -= bp.geode.0;
+            wait.stock.2 -= bp.geode.1;
+            wait.robots.3 += 1;
+            return vec!(wait)
+        }
+
         let mut states = vec![];
         if self.stock.0 >= bp.ore {
             let mut state = wait.clone();
@@ -70,14 +78,10 @@ impl State {
             state.robots.2 += 1;
             states.push(state);
         }
-        if self.stock.0 >= bp.geode.0 && self.stock.2 >= bp.geode.1 {
-            let mut state = wait.clone();
-            state.stock.0 -= bp.geode.0;
-            state.stock.2 -= bp.geode.1;
-            state.robots.3 += 1;
-            states.push(state);
+        // no reason to wait if we can build any bot.
+        if states.len() < 3 {
+            states.push(wait);
         }
-        states.push(wait);
         states
     }
 
