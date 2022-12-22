@@ -4,7 +4,7 @@ fn solve(equations: &[String], target: &str) -> i64 {
     let mut ctx = HashMapContext::new();
     loop {
         for line in equations {
-            let _ = eval_int_with_context_mut(&line, &mut ctx);
+            let _ = eval_int_with_context_mut(line, &mut ctx);
         }
         if let Some(target) = ctx.get_value(target) {
             return target.as_int().unwrap();
@@ -14,7 +14,7 @@ fn solve(equations: &[String], target: &str) -> i64 {
 
 fn main() {
     let input = std::fs::read_to_string("input").unwrap();
-    let equations: Vec<String> = input.lines().map(|l| l.replace(":", " =")).collect();
+    let equations: Vec<String> = input.lines().map(|l| l.replace(':', " =")).collect();
     dbg!(solve(&equations, "root"));
     let mut root = equations
         .iter()
@@ -30,19 +30,20 @@ fn main() {
         .chain(
             equations
                 .into_iter()
-                .filter(|l| !l.starts_with("root") && !l.starts_with("humn"))
-                .filter(|l| !l.chars().last().unwrap().is_digit(10))
+                .filter(|l| {
+                    !l.starts_with("root")
+                        && !l.starts_with("humn")
+                        && !l.chars().last().unwrap().is_ascii_digit()
+                })
                 .flat_map(|eq| {
-                    {
-                        let t: Vec<&str> = eq.split_whitespace().collect();
-                        let (r, a, op, b) = (t[0], t[2], t[3], t[4]);
-                        match op {
-                            "+" => vec![format!("{a} = {r} - {b}"), format!("{b} = {r} - {a}")],
-                            "-" => vec![format!("{a} = {r} + {b}"), format!("{b} = {a} - {r}")],
-                            "*" => vec![format!("{a} = {r} / {b}"), format!("{b} = {r} / {a}")],
-                            "/" => vec![format!("{a} = {r} * {b}"), format!("{b} = {a} / {r}")],
-                            _ => panic!(),
-                        }
+                    let t: Vec<&str> = eq.split_whitespace().collect();
+                    let (r, a, op, b) = (t[0], t[2], t[3], t[4]);
+                    match op {
+                        "+" => vec![format!("{a} = {r} - {b}"), format!("{b} = {r} - {a}")],
+                        "-" => vec![format!("{a} = {r} + {b}"), format!("{b} = {a} - {r}")],
+                        "*" => vec![format!("{a} = {r} / {b}"), format!("{b} = {r} / {a}")],
+                        "/" => vec![format!("{a} = {r} * {b}"), format!("{b} = {a} / {r}")],
+                        _ => panic!(),
                     }
                     .into_iter()
                 }),
