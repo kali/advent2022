@@ -1,5 +1,5 @@
 use std::collections::{HashMap, HashSet};
-use std::ops::RangeInclusive;
+use std::ops::Range;
 use std::str::FromStr;
 
 use itertools::Itertools;
@@ -41,15 +41,15 @@ impl State {
     fn run(&self) -> Option<State> {
         let mut plan: Vec<Option<(isize, isize)>> = vec![];
         for (x, y) in &self.elves {
-            let occupied: Vec<bool> = DIRS
+            let neighbors: Vec<bool> = DIRS
                 .iter()
                 .map(|(dx, dy)| self.elves.contains(&(x + dx, y + dy)))
                 .collect();
             let mut mov = None;
-            if occupied.iter().any(|x| *x) {
+            if neighbors.iter().any(|x| *x) {
                 for mv in 0..4 {
                     let mv = MOVES[(mv + self.turn) % 4];
-                    if !occupied[(mv + 7) % 8] && !occupied[mv] && !occupied[(mv + 1) % 8] {
+                    if !neighbors[(mv + 7) % 8] && !neighbors[mv] && !neighbors[(mv + 1) % 8] {
                         mov = Some((x + DIRS[mv].0, y + DIRS[mv].1));
                         break;
                     }
@@ -84,7 +84,7 @@ impl State {
         }
     }
 
-    fn x_boundaries(&self) -> RangeInclusive<isize> {
+    fn x_range(&self) -> Range<isize> {
         let r = self
             .elves
             .iter()
@@ -92,10 +92,10 @@ impl State {
             .minmax()
             .into_option()
             .unwrap();
-        r.0..=r.1
+        r.0..r.1 + 1
     }
 
-    fn y_boundaries(&self) -> RangeInclusive<isize> {
+    fn y_range(&self) -> Range<isize> {
         let r = self
             .elves
             .iter()
@@ -103,13 +103,13 @@ impl State {
             .minmax()
             .into_option()
             .unwrap();
-        r.0..=r.1
+        r.0..r.1 + 1
     }
 
     fn score(&self) -> isize {
-        let x = self.x_boundaries();
-        let y = self.y_boundaries();
-        (x.end() - x.start() + 1) * (y.end() - y.start() + 1) - self.elves.len() as isize
+        let x = self.x_range();
+        let y = self.y_range();
+        (x.len() * y.len() - self.elves.len()) as isize
     }
 
     fn turns(&self) -> isize {
