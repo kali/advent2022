@@ -123,19 +123,6 @@ impl State {
         }
         unreachable!()
     }
-
-    fn dump(&self) {
-        for y in self.y_boundaries() {
-            for x in self.x_boundaries() {
-                if self.elves.iter().any(|elf| elf.0 == x && elf.1 == y) {
-                    print!("#");
-                } else {
-                    print!(".");
-                }
-            }
-            println!();
-        }
-    }
 }
 
 fn main() {
@@ -160,7 +147,7 @@ fn t1() {
 ....#..#......"#
         .parse::<State>()
         .unwrap();
-    for ix in 0..10 {
+    for _ in 0..10 {
         state = state.run().unwrap_or(state);
     }
     assert_eq!(state.score(), 110);
@@ -168,7 +155,7 @@ fn t1() {
 
 #[test]
 fn t2() {
-    let mut state = r#".......#......
+    let state = r#".......#......
 .....###.#....
 ...#...#.#....
 ....#...##....
