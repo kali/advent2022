@@ -3,17 +3,22 @@ const DIRS: [(isize, isize); 5] = [(1, 0), (0, 1), (-1, 0), (0, -1), (0, 0)];
 struct Winds {
     height: usize,
     width: usize,
-    winds: Vec<(usize, usize, usize)>,
+    down: Vec<Vec<usize>>,
+    up: Vec<Vec<usize>>,
+    left: Vec<Vec<usize>>,
+    right: Vec<Vec<usize>>,
 }
 
 impl Winds {
     fn wind_free(&self, x: usize, y: usize, t: usize) -> bool {
-        !self.winds.iter().any(|w| {
-            (y == w.1 && w.2 == 0 && (w.0 + t) % self.width == x)
-                || (y == w.1 && w.2 == 2 && (w.0 + t * (self.width - 1)) % self.width == x)
-                || (x == w.0 && w.2 == 1 && (w.1 + t) % self.height == y)
-                || (x == w.0 && w.2 == 3 && (w.1 + t * (self.height - 1)) % self.height == y)
-        })
+        !self.right[y].iter().any(|x2| (x2 + t) % self.width == x)
+            && !self.down[x].iter().any(|y2| (y2 + t) % self.height == y)
+            && !self.left[y]
+                .iter()
+                .any(|x2| (x2 + (self.width - 1) * t) % self.width == x)
+            && !self.up[x]
+                .iter()
+                .any(|y2| (y2 + (self.height - 1) * t) % self.height == y)
     }
 }
 
@@ -54,25 +59,28 @@ fn run(input: &str) -> (usize, usize) {
     let hole = |line: &str| line.bytes().position(|c| c == b'.').unwrap();
     let entry = (hole(input.lines().next().unwrap()), 0);
     let exit = (hole(input.lines().last().unwrap()), height + 1);
-    let winds = input
-        .lines()
-        .enumerate()
-        .flat_map(|(y, l)| {
-            {
-                l.chars().enumerate().filter_map(move |(x, c)| match c {
-                    '>' => Some((x - 1, y - 1, 0)),
-                    'v' => Some((x - 1, y - 1, 1)),
-                    '<' => Some((x - 1, y - 1, 2)),
-                    '^' => Some((x - 1, y - 1, 3)),
-                    _ => None,
-                })
+    let mut down = vec![vec!(); width];
+    let mut up = vec![vec!(); width];
+    let mut left = vec![vec!(); height];
+    let mut right = vec![vec!(); height];
+    for (y, l) in input.lines().enumerate() {
+        for (x, c) in l.chars().enumerate() {
+            match c {
+                '>' => right[y - 1].push(x - 1),
+                '<' => left[y - 1].push(x - 1),
+                'v' => down[x - 1].push(y - 1),
+                '^' => up[x - 1].push(y - 1),
+                _ => (),
             }
-        })
-        .collect();
+        }
+    }
     let winds = Winds {
         height,
         width,
-        winds,
+        down,
+        left,
+        right,
+        up,
     };
     let p1 = find_path(&winds, entry, 0, exit);
     let back = find_path(&winds, exit, p1, entry);
