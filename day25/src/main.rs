@@ -4,34 +4,26 @@ fn main() {
 }
 
 fn run(input: &str) -> String {
-    let mut sum = vec![0i8; 0];
+    let mut sum = vec![0i8; 100];
     for line in input.trim().lines() {
-        let digits = sum.len().max(line.as_bytes().len()) + 1;
-        while sum.len() < digits {
-            sum.push(0);
-        }
         let mut carry = 0;
-        for ix in 0..digits {
+        for (ix, acc) in sum.iter_mut().enumerate() {
             let c = line.bytes().rev().nth(ix).unwrap_or(b'0');
             let v = "=-012".bytes().position(|x| x == c).unwrap() as i8 - 2;
-            let s = v + sum[ix] + carry;
-            let (car, d) = if s > 2 {
+            let s = v + *acc + carry;
+            (carry, *acc) = if s > 2 {
                 (1, s - 5)
             } else if s < -2 {
                 (-1, s + 5)
             } else {
                 (0, s)
             };
-            sum[ix] = d;
-            carry = car;
-        }
-        while sum.last().copied() == Some(0) {
-            sum.pop();
         }
     }
-    sum.iter()
+    sum.into_iter()
         .rev()
-        .map(|d| "=-012".as_bytes()[(*d + 2) as usize] as char)
+        .skip_while(|c| *c == 0)
+        .map(|d| "=-012".as_bytes()[(d + 2) as usize] as char)
         .collect()
 }
 
