@@ -1,3 +1,5 @@
+use std::iter::repeat;
+
 fn main() {
     let input = std::fs::read_to_string("input").unwrap();
     dbg!(run(&input));
@@ -7,10 +9,8 @@ fn run(input: &str) -> String {
     let mut sum = vec![0i8; 100];
     for line in input.trim().lines() {
         let mut carry = 0;
-        for (ix, acc) in sum.iter_mut().enumerate() {
-            let c = line.bytes().rev().nth(ix).unwrap_or(b'0');
-            let v = "=-012".bytes().position(|x| x == c).unwrap() as i8 - 2;
-            let s = v + *acc + carry;
+        for (acc, c) in sum.iter_mut().zip(line.bytes().rev().chain(repeat(b'0'))) {
+            let s = *acc + carry + "=-012".bytes().position(|x| x == c).unwrap() as i8 - 2;
             (carry, *acc) = if s > 2 {
                 (1, s - 5)
             } else if s < -2 {
